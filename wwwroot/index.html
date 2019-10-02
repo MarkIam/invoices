@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoices</title>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="../node_modules/jqueryui/jquery-ui.min.css">
+    <script src="../node_modules/jqueryui/jquery-ui.min.js"></script>
+</head>
+<body>
+    <div id="filter">
+        Search:
+        <input  type="text" id="searchInput">
+        Filter by:
+        <select name="filterFieldSelect" id="filterFieldSelect">
+            <option value="all">all</option>
+            <option value="number">No</option>
+            <option value="date_created">Create</option>
+            <option value="date_supply">Supply</option>
+            <option value="comment">Comment</option>
+        </select>
+        Order by:
+        <select name="orderFieldSelect" id="orderFieldSelect">
+            <option value="number">No</option>
+            <option value="date_created">Create</option>
+            <option value="date_supply">Supply</option>
+            <option value="comment">Comment</option>
+        </select>
+        <select name="orderDirectionSelect" id="orderDirectionSelect">
+            <option value="no">No</option>
+            <option value="asc">Asc</option>
+            <option value="desc">Desc</option>
+        </select>
+        <button type="button" class="btn btn-primary" id="goButton">Go</button>
+    </div>
+    <div id="invoiceInfo">
+        Number: <input type="text" id="numberInput">
+        Invoice date: <input type="text" id="invoiceDateInput">
+        Supply date: <input type="text" id="supplyDateInput">
+        Comment: <input type="text" id="commentInput">
+        <button type="button" class="btn btn-primary" id="addInvoiceButton">Add invoice</button>
+    </div>
+    <table id="invoicesTable" class="table">
+        <thead>
+            <th id="date_created">Create</th>
+            <th id="number">No</th>
+            <th id="date_supply">Supply</th>
+            <th id="comment">Comment</th>
+            <th id="actions">Actions</th>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <script type="text/javascript">
+        //var baseInvoicesUrl = "http://localhost:3000/invoices";
+        var baseInvoicesUrl = "https://markb-invoices-project.herokuapp.com/invoices";
+        var invoiceIdToEdit = '';
+
+        function updateData(){
+            var filterValue = $('#searchInput').val();
+            var filterFieldValue = $('#filterFieldSelect').val();
+            var orderFieldValue = $('#orderFieldSelect').val();
+            var orderDirectionValue = $('#orderDirectionSelect').val();
+            
+            var urlParameters = filterFieldValue == 'all' ?
+                                (filterValue.length > 0 ? '?q=' + filterValue : ''):
+                                '?' + filterFieldValue + '=' + filterValue;
+            if (orderDirectionValue != 'no'){
+                urlParameters += urlParameters.length == 0 ? '?' : '&';
+                urlParameters += '_sort=' + orderFieldValue + '&_order=' + orderDirectionValue;
+            }
+            $("#invoicesTable tbody").empty();
+            $.get(baseInvoicesUrl + urlParameters, function( data ) {
+                $(data).each(function(idx, elem){
+                    $('#invoicesTable tbody').append('<tr id="' + elem.id + '">'+
+                                                        '<td>' + elem.date_created + '</td>'+
+                                                        '<td>' + elem.number + '</td>'+
+                                                        '<td>' + elem.date_supply + '</td>'+
+                                                        '<td>' + elem.comment + '</td>'+
+                                                        '<td>' +
+                                                        '<a href="javascript:void(0);" onclick="editInvoice(\'' + elem.id + '\');">Редактировать</a>'+
+                                                        '<a href="javascript:void(0);" onclick="DeleteInvoice(\'' + elem.id + '\')";>Удалить</a>'+
+                                                        '</td>'+
+                                                      '</tr>');
+                });
+            });
+        }
+
+        function getObject(){
+            return {
+                number: $('#numberInput').val(),
+                date_created: new Date(),
+                date_due: $('#invoiceDateInput').val(),
+                date_supply: $('#supplyDateInput').val(),
+                comment: $('#commentInput').val()
+            }
+        }
+
+        function ClearInputs(){
+            $('#numberInput').val(''),
+            $('#invoiceDateInput').val(''),
+            $('#supplyDateInput').val(''),
+            $('#commentInput').val('')
+        }
+
+        function CreateInvoice(){
+            if (invoiceIdToEdit){
+                $.ajax({
+                    url: baseInvoicesUrl + '/' + invoiceIdToEdit,
+                    type: 'PUT',
+                    data: getObject(),
+                    success: function(result) {
+                        invoiceIdToEdit = '';
+                        $('#addInvoiceButton').text('Add invoice');
+                        ClearInputs();
+                        updateData();
+                    }
+                });
+            }
+            else{
+                $.post(baseInvoicesUrl, getObject(), function(){
+                    updateData();
+                });
+            }
+        }
+
+        function editInvoice(invoiceId){
+            invoiceIdToEdit = invoiceId;
+            $('#addInvoiceButton').text('Edit invoice');
+            var rowToEdit = $('tr#' + invoiceId);
+            $('#numberInput').val(rowToEdit.children()[1].innerText);
+            $('#invoiceDateInput').val(rowToEdit.children()[0].innerText);
+            $('#supplyDateInput').val(rowToEdit.children()[2].innerText);
+            $('#commentInput').val(rowToEdit.children()[3].innerText);
+        }
+
+        function DeleteInvoice(invoiceId){
+            if (confirm("Вы действительно желаете удалить накладную?")){
+                $.ajax({
+                    url: baseInvoicesUrl + '/' + invoiceId,
+                    type: 'DELETE',
+                    success: function(result) {
+                        updateData();
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function(){
+            $('#goButton').click(function(){
+                updateData();
+            });
+            $('#addInvoiceButton').click(function(){
+                CreateInvoice();
+            });
+            updateData();
+        });
+    </script>
+</body>
+</html>
