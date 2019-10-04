@@ -44,6 +44,7 @@
         <thead>
             <th id="date_created">Create</th>
             <th id="number">Number</th>
+            <th style="display:none;" id="date_due">Due</th>
             <th id="date_supply">Supply</th>
             <th id="comment">Comment</th>
             <th id="actions">Actions</th>
@@ -77,6 +78,7 @@
                     $('#invoicesTable tbody').append('<tr id="' + elem.id + '">'+
                                                         '<td>' + elem.date_created + '</td>'+
                                                         '<td>' + elem.number + '</td>'+
+                                                        '<td style="display:none;">' + elem.date_due + '</td>'+
                                                         '<td>' + elem.date_supply + '</td>'+
                                                         '<td>' + elem.comment + '</td>'+
                                                         '<td>' +
@@ -175,9 +177,9 @@
             invoiceIdToEdit = invoiceId;
             var rowToEdit = $('tr#' + invoiceId);
             $('#numberInput').val(rowToEdit.children()[1].innerText);
-            $('#invoiceDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[0].innerText));
-            $('#supplyDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[2].innerText));
-            $('#commentInput').val(rowToEdit.children()[3].innerText);
+            $('#invoiceDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[2].innerText));
+            $('#supplyDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[3].innerText));
+            $('#commentInput').val(rowToEdit.children()[4].innerText);
 
             ShowInvoiceDialog('Edit invoice');
         }
