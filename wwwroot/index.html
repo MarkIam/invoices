@@ -4,8 +4,8 @@
     <title>Invoices</title>
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <link rel="stylesheet" href="../node_modules/jqueryui/jquery-ui.min.css">
-    <script src="../node_modules/jqueryui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
+    <script src="../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
 </head>
 <body>
     <div id="filter">
@@ -142,9 +142,6 @@
                     type: 'PATCH',
                     data: obj,
                     success: function(result) {
-                        invoiceIdToEdit = '';
-                        $('#addInvoiceButton').text('Add invoice');
-                        ClearInputs();
                         updateData();
                     }
                 });
@@ -156,8 +153,9 @@
             }
         }
 
-        function ShowInvoiceDialog(){
+        function ShowInvoiceDialog(pTitle){
             $('#invoiceInfo').dialog({
+                title: pTitle,
                 height: "auto",
                 width: 400,
                 modal: true,
@@ -175,18 +173,17 @@
         
         function editInvoice(invoiceId){
             invoiceIdToEdit = invoiceId;
-            $('#addInvoiceButton').text('Edit invoice');
             var rowToEdit = $('tr#' + invoiceId);
             $('#numberInput').val(rowToEdit.children()[1].innerText);
             $('#invoiceDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[0].innerText));
             $('#supplyDateInput').val(InvoiceDateToInputFormat(rowToEdit.children()[2].innerText));
             $('#commentInput').val(rowToEdit.children()[3].innerText);
 
-            ShowInvoiceDialog();
+            ShowInvoiceDialog('Edit invoice');
         }
 
         function DeleteInvoice(invoiceId){
-            if (confirm("Вы действительно желаете удалить накладную?")){
+            if (confirm("Do you really want to delete the invoice?")){
                 $.ajax({
                     url: baseInvoicesUrl + '/' + invoiceId,
                     type: 'DELETE',
@@ -202,7 +199,9 @@
                 updateData();
             });
             $('#addInvoiceButton').click(function(){
-                ShowInvoiceDialog();
+                invoiceIdToEdit = '';
+                ClearInputs();
+                ShowInvoiceDialog('Create invoice');
             });
             updateData();
         });
