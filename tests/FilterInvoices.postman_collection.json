@@ -1,0 +1,65 @@
+{
+	"info": {
+		"_postman_id": "b6668502-cf0c-4ac8-9982-d6eed6341776",
+		"name": "Filter invoices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Filter",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a77271bd-b2db-4730-a521-0c1eefd057db",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "796b7bba-6df5-4ae0-bf52-5b52ae2851d0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    \r",
+							"    var data = pm.response.json();\r",
+							"    pm.test('Response returns invoices', function () {\r",
+							"        pm.expect(data.length).to.above(0);\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://markb-invoices-project.herokuapp.com/invoices?{{filterField}}={{filterValue}}",
+					"protocol": "https",
+					"host": [
+						"markb-invoices-project",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"invoices"
+					],
+					"query": [
+						{
+							"key": "{{filterField}}",
+							"value": "{{filterValue}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
